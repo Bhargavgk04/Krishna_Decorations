@@ -21,6 +21,21 @@ const GalleryOptimized: React.FC = () => {
 
   const categories = useMemo(() => ['All', ...getAllCategories()], []);
 
+  // Filter images based on selected category
+  const handleCategoryFilter = useCallback((category: string) => {
+    setIsLoading(true);
+    setSelectedCategory(category);
+    // Use setTimeout to allow UI to update before filtering
+    setTimeout(() => {
+      if (category === 'All') {
+        setFilteredImages(portfolioImages);
+      } else {
+        setFilteredImages(portfolioImages.filter(img => img.category === category));
+      }
+      setIsLoading(false);
+    }, 100);
+  }, []);
+
   // Memoize filtered images to prevent unnecessary re-renders
   const memoizedFilteredImages = useMemo(() => {
     if (selectedCategory === 'All') {
@@ -35,23 +50,7 @@ const GalleryOptimized: React.FC = () => {
     if (categoryParam && categories.includes(categoryParam)) {
       handleCategoryFilter(categoryParam);
     }
-  }, [searchParams, categories]);
-
-  // Filter images based on selected category
-  const handleCategoryFilter = useCallback((category: string) => {
-    setIsLoading(true);
-    setSelectedCategory(category);
-    
-    // Use setTimeout to allow UI to update before filtering
-    setTimeout(() => {
-      if (category === 'All') {
-        setFilteredImages(portfolioImages);
-      } else {
-        setFilteredImages(portfolioImages.filter(img => img.category === category));
-      }
-      setIsLoading(false);
-    }, 100);
-  }, []);
+  }, [searchParams, categories, handleCategoryFilter]);
 
   // Group images by category (memoized)
   const imagesByCategory = useMemo(() => {
