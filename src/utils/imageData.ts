@@ -1364,3 +1364,77 @@ export const portfolioImages: ImageData[] = [
   ...toranImages,
   ...weddingImages
 ];
+
+// Slideshow images (selecting best from each category)
+export const slideshowImages: ImageData[] = [
+  BabyshowerImages[0],
+  BirthdayImages[0],
+  engagementImages[0],
+  HaldiImages[0],
+  NaamKaranImages[0],
+  MiravnukImages[0],
+  SelfiepointsImages[0],
+  toranImages[0],
+  weddingImages[0]
+].filter(Boolean);
+
+// Fallback images for when local images are not available
+export const fallbackImages: ImageData[] = [
+  {
+    src: 'https://images.pexels.com/photos/587741/pexels-photo-587741.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
+    alt: 'Wedding Decoration',
+    category: 'Wedding',
+    description: 'Beautiful wedding decoration setup'
+  },
+  {
+    src: 'https://images.pexels.com/photos/587741/pexels-photo-587741.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
+    alt: 'Birthday Party',
+    category: 'Birthday',
+    description: 'Colorful birthday party decoration'
+  },
+  {
+    src: 'https://images.pexels.com/photos/587741/pexels-photo-587741.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop',
+    alt: 'Engagement Ceremony',
+    category: 'Engagement',
+    description: 'Elegant engagement ceremony setup'
+  }
+];
+
+export const fallbackSlideshowImages: ImageData[] = [
+  {
+    src: 'https://images.pexels.com/photos/587741/pexels-photo-587741.jpeg?auto=compress&cs=tinysrgb&w=1200&h=600&fit=crop',
+    alt: 'Wedding Decoration',
+    category: 'Wedding',
+    description: 'Stunning wedding decoration with traditional elements and modern aesthetics'
+  },
+  {
+    src: 'https://images.pexels.com/photos/587741/pexels-photo-587741.jpeg?auto=compress&cs=tinysrgb&w=1200&h=600&fit=crop',
+    alt: 'Birthday Celebration',
+    category: 'Birthday',
+    description: 'Vibrant birthday party decoration with balloons and colorful themes'
+  },
+  {
+    src: 'https://images.pexels.com/photos/587741/pexels-photo-587741.jpeg?auto=compress&cs=tinysrgb&w=1200&h=600&fit=crop',
+    alt: 'Engagement Setup',
+    category: 'Engagement',
+    description: 'Elegant engagement ceremony decoration with floral arrangements'
+  }
+];
+
+// Get all unique categories
+export const getAllCategories = (): string[] => {
+  const categories = new Set(portfolioImages.map(img => img.category));
+  return Array.from(categories).sort();
+};
+
+// Get categories sorted by image count (most images first)
+export const getCategoriesByCount = () => {
+  const categoryCounts = portfolioImages.reduce((acc, img) => {
+    acc[img.category] = (acc[img.category] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return Object.entries(categoryCounts)
+    .map(([category, count]) => ({ category, count }))
+    .sort((a, b) => b.count - a.count); // Sort by count descending
+};

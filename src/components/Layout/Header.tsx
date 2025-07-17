@@ -87,9 +87,12 @@ const Header: React.FC = () => {
           transition={{ duration: 0.2, ease: 'easeOut' }}
         >
           <div className="relative">
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">K</span>
-            </div>
+            <img
+              src="/images/Krishna.jpg"
+              alt="Krishna Decor Logo"
+              className="w-10 h-10 rounded-lg shadow-lg object-contain bg-black"
+              style={{ background: 'black' }}
+            />
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-amber-300 to-amber-500 rounded-lg opacity-0 group-hover:opacity-100"
               transition={{ duration: 0.3 }}
