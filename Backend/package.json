@@ -1,0 +1,116 @@
+{
+  "name": "krishna-decorations-api",
+  "version": "1.0.0",
+  "description": "Event booking and decoration management system API for Krishna Decorations",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "dev:debug": "nodemon --inspect server.js",
+    "prod": "NODE_ENV=production node server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:seed": "node scripts/seedDatabase.js",
+    "db:create-admin": "node scripts/createAdmin.js",
+    "db:migrate": "node scripts/migrate.js",
+    "db:backup": "node scripts/backup.js",
+    "logs:clear": "rm -rf logs/*",
+    "security:audit": "npm audit",
+    "security:fix": "npm audit fix",
+    "build": "echo 'No build step required for Node.js API'",
+    "health": "curl -f http://localhost:5000/api/health || exit 1",
+    "docker:build": "docker build -t krishna-decorations-api .",
+    "docker:run": "docker run -p 5000:5000 krishna-decorations-api"
+  },
+  "keywords": [
+    "event-booking",
+    "decoration",
+    "api",
+    "nodejs",
+    "express",
+    "mongodb",
+    "jwt",
+    "notifications"
+  ],
+  "author": {
+    "name": "Krishna Decorations",
+    "email": "dev@krishna-decorations.com",
+    "url": "https://krishna-decorations.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.40.0",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^6.10.0",
+    "express-slow-down": "^1.6.0",
+    "express-validator": "^7.0.1",
+    "fs": "^0.0.1-security",
+    "helmet": "^7.0.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.0",
+    "mongoose-paginate-v2": "^1.7.4",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.4",
+    "path": "^0.12.7",
+    "winston": "^3.10.0",
+    "winston-daily-rotate-file": "^4.7.1",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.4",
+    "@types/supertest": "^6.0.3",
+    "eslint": "^8.47.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.28.1",
+    "mongodb-memory-server": "^8.16.1",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.2"
+  },
+  "eslintConfig": {
+    "extends": [
+      "airbnb-base"
+    ],
+    "env": {
+      "node": true
+    },
+    "rules": {
+      "no-console": "warn",
+      "no-unused-vars": "error",
+      "prefer-const": "error",
+      "no-var": "error"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "trailingComma": "es5",
+    "singleQuote": true,
+    "printWidth": 100,
+    "tabWidth": 2
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krishna-decorations/api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/krishna-decorations/api/issues"
+  },
+  "homepage": "https://krishna-decorations.com"
+}
