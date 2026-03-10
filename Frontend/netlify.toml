@@ -5,13 +5,9 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_FLAGS = "--production=false"
-
-# Environment variables for all contexts
-# You can override these in Netlify's dashboard under Site settings > Environment variables
-[build.environment]
   VITE_APP_NAME = "Krishna Decorations"
   VITE_APP_VERSION = "1.0.0"
-  # VITE_API_URL will be set in Netlify dashboard
+  # VITE_API_URL should be set in Netlify dashboard
 
 # Security headers
 [[headers]]
