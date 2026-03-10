@@ -19,6 +19,7 @@ const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:3001',
+      'http://localhost:5173',
       'https://krishna-decorations.com',
       'https://www.krishna-decorations.com',
       'https://admin.krishna-decorations.com',
@@ -31,11 +32,23 @@ const corsOptions = {
     if (process.env.ADMIN_FRONTEND_URL) {
       allowedOrigins.push(process.env.ADMIN_FRONTEND_URL);
     }
+
+    // Normalize origins (remove trailing slashes)
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    const isAllowed = allowedOrigins.some(ao => {
+      if (!ao) return false;
+      const normalizedAo = ao.trim().replace(/\/$/, '');
+      return normalizedOrigin === normalizedAo;
+    });
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (isAllowed) {
       callback(null, true);
     } else {
-      logger.warn('CORS blocked request from origin:', origin);
+      logger.warn('CORS blocked request from origin:', {
+        origin,
+        normalizedOrigin,
+        allowedOrigins: allowedOrigins.filter(Boolean)
+      });
       callback(new Error('Not allowed by CORS'));
     }
   },
