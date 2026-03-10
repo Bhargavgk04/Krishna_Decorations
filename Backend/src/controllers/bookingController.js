@@ -472,12 +472,6 @@ exports.getUserBookings = async (req, res) => {
     });
   }
 };
-      success: false,
-      message: 'Failed to fetch bookings',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-};
 
 // Get single booking
 exports.getBooking = async (req, res) => {
