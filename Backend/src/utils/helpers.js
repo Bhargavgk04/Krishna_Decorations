@@ -80,6 +80,17 @@ const generateRandomString = (length = 8, charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZa
 };
 
 /**
+ * Generate a unique booking ID
+ * @returns {string} Booking ID
+ */
+const generateBookingId = () => {
+  const prefix = 'BKG';
+  const timestamp = Date.now().toString().slice(-6);
+  const randomStr = generateRandomString(4, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
+  return `${prefix}-${timestamp}-${randomStr}`;
+};
+
+/**
  * Sanitize filename for safe storage
  * @param {string} filename - Original filename
  * @returns {string} Sanitized filename
@@ -294,6 +305,7 @@ module.exports = {
   formatDate,
   formatCurrency,
   generateRandomString,
+  generateBookingId,
   sanitizeFilename,
   getFileExtension,
   isAllowedFileType,

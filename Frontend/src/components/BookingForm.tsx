@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { apiService } from '../services/api';
 
 interface BookingFormData {
   customerName: string;
@@ -7,7 +8,11 @@ interface BookingFormData {
   phone: string;
   eventType: string;
   eventDate: string;
-  venue: string;
+  venueName: string;
+  venueAddress: string;
+  venueCity: string;
+  venueState: string;
+  venuePincode: string;
   guestCount: number;
   budget: number;
   requirements: string;
@@ -22,7 +27,11 @@ const BookingForm: React.FC = () => {
     phone: '',
     eventType: '',
     eventDate: '',
-    venue: '',
+    venueName: '',
+    venueAddress: '',
+    venueCity: '',
+    venueState: '',
+    venuePincode: '',
     guestCount: 0,
     budget: 0,
     requirements: '',
@@ -32,6 +41,7 @@ const BookingForm: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const eventTypes = [
     'Wedding',
@@ -74,17 +84,25 @@ const BookingForm: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setErrorMessage('');
 
     try {
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
+      // Structure the data for the backend
+      const submissionData = {
+        ...formData,
+        eventTime: formData.preferredTime, // map preferredTime to eventTime for the backend
+        venue: {
+          name: formData.venueName,
+          address: formData.venueAddress,
+          city: formData.venueCity,
+          state: formData.venueState,
+          pincode: formData.venuePincode,
+        }
+      };
 
-      if (response.ok) {
+      const response = await apiService.post('/bookings', submissionData);
+
+      if (response.success) {
         setSubmitStatus('success');
         // Reset form
         setFormData({
@@ -93,7 +111,11 @@ const BookingForm: React.FC = () => {
           phone: '',
           eventType: '',
           eventDate: '',
-          venue: '',
+          venueName: '',
+          venueAddress: '',
+          venueCity: '',
+          venueState: '',
+          venuePincode: '',
           guestCount: 0,
           budget: 0,
           requirements: '',
@@ -102,10 +124,12 @@ const BookingForm: React.FC = () => {
         });
       } else {
         setSubmitStatus('error');
+        setErrorMessage(response.message || 'Failed to submit booking');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting booking:', error);
       setSubmitStatus('error');
+      setErrorMessage(error.message || error.error?.message || 'Failed to submit booking. Please try again or make sure you are logged in.');
     } finally {
       setIsSubmitting(false);
     }
@@ -113,28 +137,31 @@ const BookingForm: React.FC = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg"
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      className="max-w-4xl mx-auto p-8 sm:p-12 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/50"
     >
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="text-center mb-10">
+        <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand to-rose-500 mb-3 tracking-tight">
           Book Your Event
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          Fill out the form below and we'll get back to you within 24 hours
+        <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">
+          Fill out the form below and we'll craft the perfect experience for you.
         </p>
       </div>
 
       {submitStatus === 'success' && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg"
+          className="mb-8 p-5 bg-green-50/90 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 rounded-xl shadow-inner text-center"
         >
-          <h3 className="font-semibold">Booking Request Submitted!</h3>
-          <p>Thank you for your booking request. We'll contact you soon to confirm the details.</p>
+          <div className="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg className="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+          </div>
+          <h3 className="font-bold text-lg mb-1">Booking Request Submitted!</h3>
+          <p className="text-sm">Thank you for your request. We'll contact you within 24 hours to confirm the details.</p>
         </motion.div>
       )}
 
@@ -145,7 +172,7 @@ const BookingForm: React.FC = () => {
           className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
         >
           <h3 className="font-semibold">Error Submitting Booking</h3>
-          <p>There was an error submitting your booking. Please try again or contact us directly.</p>
+          <p>{errorMessage || 'There was an error submitting your booking. Please try again or contact us directly.'}</p>
         </motion.div>
       )}
 
@@ -254,21 +281,95 @@ const BookingForm: React.FC = () => {
             />
           </div>
 
-          {/* Venue */}
-          <div>
-            <label htmlFor="venue" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Venue *
-            </label>
-            <input
-              type="text"
-              id="venue"
-              name="venue"
-              value={formData.venue}
-              onChange={handleInputChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              placeholder="Enter venue location"
-            />
+          {/* Venue Details */}
+          <div className="md:col-span-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center text-sm">2</span>
+              Venue Information
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label htmlFor="venueName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Venue Name *
+                </label>
+                <input
+                  type="text"
+                  id="venueName"
+                  name="venueName"
+                  value={formData.venueName}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  placeholder="e.g. Grand Ballroom, Royal Orchid"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label htmlFor="venueAddress" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Street Address *
+                </label>
+                <input
+                  type="text"
+                  id="venueAddress"
+                  name="venueAddress"
+                  value={formData.venueAddress}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter street address"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="venueCity" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  City *
+                </label>
+                <input
+                  type="text"
+                  id="venueCity"
+                  name="venueCity"
+                  value={formData.venueCity}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter city"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="venueState" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    State *
+                  </label>
+                  <input
+                    type="text"
+                    id="venueState"
+                    name="venueState"
+                    value={formData.venueState}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    placeholder="State"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="venuePincode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Pincode *
+                  </label>
+                  <input
+                    type="text"
+                    id="venuePincode"
+                    name="venuePincode"
+                    value={formData.venuePincode}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    placeholder="Pincode"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Guest Count */}

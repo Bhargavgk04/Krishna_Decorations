@@ -18,7 +18,7 @@ type AuthAction =
   | { type: 'UPDATE_USER'; payload: User };
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   register: (userData: any) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (profileData: any) => Promise<void>;
@@ -128,14 +128,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // Login
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (email: string, password: string): Promise<User> => {
     try {
       dispatch({ type: 'AUTH_START' });
-      
+
       const response = await authService.login({ email, password });
-      
+
       if (response.success && response.data) {
         dispatch({ type: 'AUTH_SUCCESS', payload: response.data.user });
+        return response.data.user;
       } else {
         throw new Error(response.error?.message || 'Login failed');
       }
@@ -150,9 +151,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (userData: any): Promise<void> => {
     try {
       dispatch({ type: 'AUTH_START' });
-      
+
       const response = await authService.register(userData);
-      
+
       if (response.success && response.data) {
         dispatch({ type: 'AUTH_SUCCESS', payload: response.data.user });
       } else {
@@ -181,7 +182,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const updateProfile = async (profileData: any): Promise<void> => {
     try {
       const response = await authService.updateProfile(profileData);
-      
+
       if (response.success && response.data) {
         dispatch({ type: 'UPDATE_USER', payload: response.data });
       } else {

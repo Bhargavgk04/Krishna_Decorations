@@ -27,6 +27,18 @@ export interface Admin {
   updatedAt: string;
 }
 
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: 'user' | 'admin';
+  isActive: boolean;
+  lastLogin?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AdminLoginCredentials {
   email: string;
   password: string;
@@ -130,14 +142,14 @@ export const adminService = {
   // Admin authentication
   login: async (credentials: AdminLoginCredentials): Promise<ApiResponse<AdminAuthResponse>> => {
     const response = await apiService.post<AdminAuthResponse>('/admin/login', credentials);
-    
+
     if (response.success && response.data) {
       // Store auth data
       localStorage.setItem('adminToken', response.data.tokens.accessToken);
       localStorage.setItem('adminRefreshToken', response.data.tokens.refreshToken);
       localStorage.setItem('admin', JSON.stringify(response.data.admin));
     }
-    
+
     return response;
   },
 
@@ -160,10 +172,10 @@ export const adminService = {
     const params = new URLSearchParams();
     if (dateRange?.startDate) params.append('startDate', dateRange.startDate);
     if (dateRange?.endDate) params.append('endDate', dateRange.endDate);
-    
+
     const queryString = params.toString();
     const url = queryString ? `/admin/dashboard?${queryString}` : '/admin/dashboard';
-    
+
     return await apiService.get<DashboardData>(url);
   },
 
@@ -175,12 +187,12 @@ export const adminService = {
   // Update admin profile
   updateProfile: async (profileData: Partial<Admin>): Promise<ApiResponse<Admin>> => {
     const response = await apiService.put<Admin>('/admin/profile', profileData);
-    
+
     if (response.success && response.data) {
       // Update stored admin data
       localStorage.setItem('admin', JSON.stringify(response.data));
     }
-    
+
     return response;
   },
 
@@ -204,10 +216,10 @@ export const adminService = {
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.action) params.append('action', filters.action);
     if (filters?.resource) params.append('resource', filters.resource);
-    
+
     const queryString = params.toString();
     const url = queryString ? `/admin/activity-log?${queryString}` : '/admin/activity-log';
-    
+
     return await apiService.get<ActivityLog[]>(url) as PaginatedResponse<ActivityLog>;
   },
 
@@ -219,10 +231,10 @@ export const adminService = {
     if (filters?.isActive !== undefined) params.append('isActive', filters.isActive.toString());
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
-    
+
     const queryString = params.toString();
     const url = queryString ? `/admin/admins?${queryString}` : '/admin/admins';
-    
+
     return await apiService.get<Admin[]>(url) as PaginatedResponse<Admin>;
   },
 
@@ -239,6 +251,29 @@ export const adminService = {
   // Deactivate admin
   deactivateAdmin: async (adminId: string): Promise<ApiResponse> => {
     return await apiService.delete(`/admin/admins/${adminId}`);
+  },
+
+  // User management
+  getAllUsers: async (filters?: {
+    search?: string;
+    isActive?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedResponse<User>> => {
+    const params = new URLSearchParams();
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.isActive !== undefined) params.append('isActive', filters.isActive.toString());
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+
+    const queryString = params.toString();
+    const url = queryString ? `/admin/users?${queryString}` : '/admin/users';
+
+    return await apiService.get<User[]>(url) as PaginatedResponse<User>;
+  },
+
+  updateUserStatus: async (userId: string, isActive: boolean): Promise<ApiResponse<User>> => {
+    return await apiService.put<User>(`/admin/users/${userId}/status`, { isActive });
   },
 
   // Check if admin is authenticated

@@ -24,6 +24,7 @@ module.exports = {
   BOOKING_STATUS: [
     'pending',
     'approved', 
+    'in-progress',
     'modifications-requested',
     'completed',
     'cancelled'

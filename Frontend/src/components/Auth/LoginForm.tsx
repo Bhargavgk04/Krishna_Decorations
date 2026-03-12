@@ -28,9 +28,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToRegister }) 
     e.preventDefault();
 
     try {
-      await login(formData.email, formData.password);
+      const user = await login(formData.email, formData.password);
       onSuccess?.();
-      navigate('/');
+
+      if (user.role === 'admin') {
+        navigate('/admin-dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       // Error is handled by the auth context
     }

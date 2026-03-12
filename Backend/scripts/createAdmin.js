@@ -14,22 +14,35 @@ const createAdmin = async () => {
     console.log('Connected to MongoDB');
 
     // Check if admin already exists
-    const existingAdmin = await Admin.findOne({ email: 'admin@krishnadecorations.com' });
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({ email: 'krishnaevents0123@gmail.com' });
 
     if (existingAdmin) {
+      existingAdmin.password = 'Krishna@Decor@1234';
+      await existingAdmin.save();
       // eslint-disable-next-line no-console
-      console.log('Admin user already exists');
+      console.log('Admin user already exists. Password has been updated.');
+      console.log('Email: krishnaevents0123@gmail.com');
       process.exit(0);
     }
 
     // Create admin user
     const admin = new Admin({
       name: 'Admin User',
-      email: 'admin@krishnadecorations.com',
-      password: 'admin123',
-      phone: '+91 12345 67890',
+      email: 'krishnaevents0123@gmail.com',
+      password: 'Krishna@Decor@1234',
+      phone: '+911234567890',
       role: 'super_admin', // Set as super_admin to have full access
-      permissions: ['all'],
+      permissions: [
+        'view_dashboard',
+        'manage_bookings',
+        'view_statistics',
+        'send_notifications',
+        'manage_admins',
+        'manage_users',
+        'view_reports',
+        'manage_settings'
+      ],
       isActive: true,
       department: 'management'
     });
@@ -38,9 +51,9 @@ const createAdmin = async () => {
     // eslint-disable-next-line no-console
     console.log('Admin user created successfully');
     // eslint-disable-next-line no-console
-    console.log('Email: admin@krishnadecorations.com');
+    console.log('Email: krishnaevents0123@gmail.com');
     // eslint-disable-next-line no-console
-    console.log('Password: admin123');
+    console.log('Password: Krishna@Decor@1234');
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error creating admin user:', error);

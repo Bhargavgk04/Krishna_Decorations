@@ -1,17 +1,26 @@
 const User = require('../models/User');
+const Admin = require('../models/Admin');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const logger = require('../utils/logger');
 const AuthService = require('../services/authService');
 
 
-// Generate JWT token
-const generateToken = (userId, role) => {
-  return jwt.sign(
-    { id: userId, role },
+// Generate JWT token pair
+const generateTokens = (user, role) => {
+  const accessToken = jwt.sign(
+    { id: user._id, role: user.role || role },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
   );
+  
+  const refreshToken = jwt.sign(
+    { id: user._id, role: user.role || role },
+    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+
+  return { accessToken, refreshToken };
 };
 
 // Register user
@@ -86,7 +95,15 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     // Find user
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
+    let role = 'user';
+
+    if (!user) {
+      // Check if it's an admin
+      user = await Admin.findOne({ email }).select('+password');
+      role = 'admin';
+    }
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -111,20 +128,26 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Update last login
-    await user.updateLastLogin();
+    // Update last login (if method exists)
+    if (user.updateLastLogin) {
+      await user.updateLastLogin();
+    } else if (user.resetLoginAttempts) {
+      // For Admin model
+      await user.resetLoginAttempts();
+    }
 
-    // Generate token
-    const token = generateToken(user._id, user.role);
+    // Generate tokens
+    const { accessToken, refreshToken } = generateTokens(user, role);
 
-    logger.info(`User logged in: ${email}`);
+    logger.info(`${role === 'admin' ? 'Admin' : 'User'} logged in: ${email}`);
 
     res.json({
       success: true,
       message: 'Login successful',
       data: {
         user,
-        token
+        token: accessToken,
+        refreshToken
       }
     });
 

@@ -92,7 +92,7 @@ const ProfilePage: React.FC = () => {
                             <Calendar className="w-5 h-5 text-brand" />
                             Recent Bookings
                         </h2>
-                        
+
                         {isLoading ? (
                             <div className="flex justify-center py-12">
                                 <LoadingSpinner />
@@ -112,8 +112,8 @@ const ProfilePage: React.FC = () => {
                                 <p className="text-gray-500 dark:text-gray-400 mb-4">
                                     You haven't made any bookings yet. Start planning your dream event!
                                 </p>
-                                <a 
-                                    href="/booking" 
+                                <a
+                                    href="/booking"
                                     className="inline-flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-xl hover:bg-brand/90 transition-colors font-medium"
                                 >
                                     <Calendar className="w-4 h-4" />
@@ -150,7 +150,7 @@ const ProfilePage: React.FC = () => {
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <MapPin className="w-4 h-4" />
-                                                        <span>{booking.venue}</span>
+                                                        <span>{booking.venue.name}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -164,11 +164,11 @@ const ProfilePage: React.FC = () => {
                                         </div>
                                     </motion.div>
                                 ))}
-                                
+
                                 {bookings.length >= 5 && (
                                     <div className="text-center pt-4">
-                                        <a 
-                                            href="/my-bookings" 
+                                        <a
+                                            href="/my-bookings"
                                             className="inline-flex items-center gap-2 px-6 py-2 text-brand hover:text-brand/80 font-medium transition-colors"
                                         >
                                             View All Bookings

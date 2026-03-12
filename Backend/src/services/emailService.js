@@ -35,7 +35,7 @@ exports.sendBookingConfirmation = async (booking) => {
             <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
             <p><strong>Event Type:</strong> ${booking.eventType}</p>
             <p><strong>Event Date:</strong> ${formatDate(booking.eventDate)}</p>
-            <p><strong>Venue:</strong> ${booking.venue}</p>
+            <p><strong>Venue:</strong> ${booking.venue?.name || booking.venue}</p>
             <p><strong>Guest Count:</strong> ${booking.guestCount}</p>
             <p><strong>Budget:</strong> $${booking.budget}</p>
             <p><strong>Status:</strong> ${booking.status}</p>
@@ -100,7 +100,7 @@ exports.sendBookingUpdate = async (booking, oldStatus) => {
             <h4>Event Details:</h4>
             <p><strong>Event Type:</strong> ${booking.eventType}</p>
             <p><strong>Event Date:</strong> ${formatDate(booking.eventDate)}</p>
-            <p><strong>Venue:</strong> ${booking.venue}</p>
+            <p><strong>Venue:</strong> ${booking.venue?.name || booking.venue}</p>
           </div>
           
           ${booking.adminNotes && booking.adminNotes.length > 0 ? `
@@ -147,7 +147,7 @@ exports.sendBookingReminder = async (booking, daysUntilEvent) => {
             <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
             <p><strong>Event Type:</strong> ${booking.eventType}</p>
             <p><strong>Event Date:</strong> ${formatDate(booking.eventDate)}</p>
-            <p><strong>Venue:</strong> ${booking.venue}</p>
+            <p><strong>Venue:</strong> ${booking.venue?.name || booking.venue}</p>
             <p><strong>Guest Count:</strong> ${booking.guestCount}</p>
             ${booking.preferredTime ? `<p><strong>Time:</strong> ${booking.preferredTime}</p>` : ''}
           </div>
@@ -199,7 +199,7 @@ exports.sendAdminNotification = async (type, data) => {
               <p><strong>Phone:</strong> ${data.phone}</p>
               <p><strong>Event Type:</strong> ${data.eventType}</p>
               <p><strong>Event Date:</strong> ${formatDate(data.eventDate)}</p>
-              <p><strong>Venue:</strong> ${data.venue}</p>
+              <p><strong>Venue:</strong> ${data.venue?.name || data.venue}</p>
               <p><strong>Guest Count:</strong> ${data.guestCount}</p>
               <p><strong>Budget:</strong> $${data.budget}</p>
             </div>

@@ -62,7 +62,7 @@ exports.sendWhatsAppNotification = async (data) => {
                  `📱 Phone: ${data.booking.phone}\n` +
                  `🎪 Event: ${data.booking.eventType}\n` +
                  `📅 Date: ${formatDate(data.booking.eventDate)}\n` +
-                 `📍 Venue: ${data.booking.venue}\n` +
+                 `📍 Venue: ${data.booking.venue?.name || data.booking.venue}\n` +
                  `👥 Guests: ${data.booking.guestCount}\n` +
                  `💰 Budget: $${data.booking.budget}\n\n` +
                  `Please review and respond promptly!`;
@@ -83,7 +83,7 @@ exports.sendWhatsAppNotification = async (data) => {
                  `👤 Customer: ${data.booking.customerName}\n` +
                  `🎪 Event: ${data.booking.eventType}\n` +
                  `📅 Date: ${formatDate(data.booking.eventDate)}\n` +
-                 `📍 Venue: ${data.booking.venue}\n\n` +
+                 `📍 Venue: ${data.booking.venue?.name || data.booking.venue}\n\n` +
                  `Event is coming up in ${data.daysUntilEvent} day(s)!`;
         break;
         
@@ -113,7 +113,7 @@ exports.sendCustomerWhatsApp = async (phoneNumber, booking, messageType) => {
                  `📋 Booking ID: ${booking.bookingId}\n` +
                  `🎪 Event: ${booking.eventType}\n` +
                  `📅 Date: ${formatDate(booking.eventDate)}\n` +
-                 `📍 Venue: ${booking.venue}\n\n` +
+                 `📍 Venue: ${booking.venue?.name || booking.venue}\n\n` +
                  `We're excited to make your event special! 🎉`;
         break;
         
@@ -124,7 +124,7 @@ exports.sendCustomerWhatsApp = async (phoneNumber, booking, messageType) => {
                  `📋 Booking ID: ${booking.bookingId}\n` +
                  `🎪 Event: ${booking.eventType}\n` +
                  `📅 Date: ${formatDate(booking.eventDate)}\n` +
-                 `📍 Venue: ${booking.venue}\n\n` +
+                 `📍 Venue: ${booking.venue?.name || booking.venue}\n\n` +
                  `We're all set and ready to make it amazing! ✨`;
         break;
         

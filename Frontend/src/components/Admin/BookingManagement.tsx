@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, 
-  Filter, 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  Users, 
-  DollarSign,
+import {
+  Search,
+  Calendar,
+  Users,
   Eye,
   Edit,
   Check,
@@ -18,16 +14,32 @@ import {
   Download,
   RefreshCw
 } from 'lucide-react';
-import { bookingService } from '../../services/bookingService';
+import { bookingService, Booking } from '../../services/bookingService';
 import { notificationService } from '../../services/notificationService';
 import Button from '../common/Button';
 import LoadingSpinner from '../common/LoadingSpinner';
 import Modal from '../common/Modal';
 
-const BookingManagement = () => {
-  const [bookings, setBookings] = useState([]);
+interface StatusOption {
+  value: string;
+  label: string;
+  color: keyof typeof statusColors;
+}
+
+const statusColors = {
+  yellow: 'bg-yellow-100 text-yellow-800',
+  blue: 'bg-blue-100 text-blue-800',
+  indigo: 'bg-indigo-100 text-indigo-800',
+  orange: 'bg-orange-100 text-orange-800',
+  green: 'bg-green-100 text-green-800',
+  red: 'bg-red-100 text-red-800',
+  gray: 'bg-gray-100 text-gray-800'
+};
+
+const BookingManagement: React.FC = () => {
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [filters, setFilters] = useState({
@@ -39,19 +51,20 @@ const BookingManagement = () => {
     page: 1,
     limit: 10
   });
-  const [pagination, setPagination] = useState({});
+  const [pagination, setPagination] = useState<any>({});
   const [statusUpdate, setStatusUpdate] = useState({
     status: '',
     comments: '',
     totalAmount: ''
   });
 
-  const statusOptions = [
+  const statusOptions: StatusOption[] = [
     { value: 'pending', label: 'Pending', color: 'yellow' },
     { value: 'approved', label: 'Approved', color: 'blue' },
+    { value: 'in-progress', label: 'In Progress', color: 'indigo' },
     { value: 'modifications-requested', label: 'Modifications Requested', color: 'orange' },
     { value: 'completed', label: 'Completed', color: 'green' },
-    { value: 'cancelled', label: 'Cancelled', color: 'red' }
+    { value: 'cancelled', label: 'Rejected', color: 'red' }
   ];
 
   const eventTypes = [
@@ -70,8 +83,10 @@ const BookingManagement = () => {
     setIsLoading(true);
     try {
       const response = await bookingService.getAllBookings(filters);
-      if (response.success) {
+      if (response.success && response.data) {
+        // @ts-ignore - response.data structure depends on service implementation
         setBookings(response.data.bookings || []);
+        // @ts-ignore
         setPagination(response.data.pagination || {});
       }
     } catch (error) {
@@ -81,7 +96,7 @@ const BookingManagement = () => {
     }
   };
 
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
@@ -89,21 +104,21 @@ const BookingManagement = () => {
     }));
   };
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage }));
   };
 
-  const handleViewBooking = (booking) => {
+  const handleViewBooking = (booking: Booking) => {
     setSelectedBooking(booking);
     setShowBookingModal(true);
   };
 
-  const handleStatusChange = (booking) => {
+  const handleStatusChange = (booking: Booking) => {
     setSelectedBooking(booking);
     setStatusUpdate({
       status: booking.status,
       comments: '',
-      totalAmount: booking.finalCost || booking.estimatedCost || ''
+      totalAmount: (booking.finalCost || booking.estimatedCost || '').toString()
     });
     setShowStatusModal(true);
   };
@@ -116,14 +131,19 @@ const BookingManagement = () => {
         selectedBooking._id,
         statusUpdate.status,
         statusUpdate.comments,
-        statusUpdate.totalAmount ? parseFloat(statusUpdate.totalAmount) : undefined
+        statusUpdate.totalAmount ? {
+          amount: parseFloat(statusUpdate.totalAmount),
+          breakdown: [], // Admin can add breakdown later if needed
+          validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
+        } : undefined
       );
 
-      if (response.success) {
+      if (response.success && response.data) {
+        const updatedBooking = response.data;
         // Update the booking in the list
-        setBookings(prev => prev.map(booking => 
-          booking._id === selectedBooking._id 
-            ? { ...booking, ...response.data.booking }
+        setBookings(prev => prev.map(booking =>
+          booking._id === selectedBooking._id
+            ? updatedBooking
             : booking
         ));
 
@@ -140,7 +160,7 @@ const BookingManagement = () => {
     }
   };
 
-  const handleSendReminder = async (booking) => {
+  const handleSendReminder = async (booking: Booking) => {
     try {
       await notificationService.sendBookingReminder(booking._id);
       alert('Reminder sent successfully');
@@ -150,12 +170,12 @@ const BookingManagement = () => {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string): keyof typeof statusColors => {
     const statusConfig = statusOptions.find(s => s.value === status);
     return statusConfig ? statusConfig.color : 'gray';
   };
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
@@ -163,7 +183,7 @@ const BookingManagement = () => {
     }).format(amount);
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'short',
@@ -350,15 +370,15 @@ const BookingManagement = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${getStatusColor(booking.status)}-100 text-${getStatusColor(booking.status)}-800`}>
-                          {booking.status.replace('-', ' ').toUpperCase()}
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[getStatusColor(booking.status)]}`}>
+                          {statusOptions.find(s => s.value === booking.status)?.label.toUpperCase() || booking.status.toUpperCase()}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-900 dark:text-white">
-                          {booking.finalCost 
+                          {booking.finalCost
                             ? formatCurrency(booking.finalCost)
-                            : booking.estimatedCost 
+                            : booking.estimatedCost
                               ? formatCurrency(booking.estimatedCost)
                               : 'TBD'
                           }
@@ -497,7 +517,9 @@ const BookingManagement = () => {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Venue
                     </label>
-                    <p className="text-gray-900 dark:text-white">{selectedBooking.venue}</p>
+                    <p className="text-gray-900 dark:text-white">
+                      {selectedBooking.venue.name}, {selectedBooking.venue.address}, {selectedBooking.venue.city}
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

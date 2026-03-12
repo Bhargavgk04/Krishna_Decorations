@@ -742,6 +742,139 @@ class AdminController {
       });
     }
   }
+
+  /**
+   * Get all registered users (Admin only)
+   */
+  static async getAllUsers(req, res) {
+    try {
+      const User = require('../models/User');
+      const { page = 1, limit = 10, search, isActive } = req.query;
+
+      const query = { role: 'user' }; // Only fetch regular users
+      if (isActive !== undefined) query.isActive = isActive === 'true';
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+          { phone: { $regex: search, $options: 'i' } }
+        ];
+      }
+
+      const users = await User.find(query)
+        .select('-password')
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .sort({ createdAt: -1 });
+
+      const total = await User.countDocuments(query);
+
+      const pagination = {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        itemsPerPage: parseInt(limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      };
+
+      // Log admin activity
+      await req.user.logActivity('VIEW_ALL_USERS', 'user', null, {
+        filters: { search, isActive },
+      }, req);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          users,
+          pagination,
+        },
+      });
+    } catch (error) {
+      logger.error('Get all users failed:', {
+        error: error.message,
+        adminId: req.user?.id,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.SERVER_ERROR,
+          message: 'Failed to get users',
+        },
+      });
+    }
+  }
+
+  /**
+   * Update user status (Admin only)
+   */
+  static async updateUserStatus(req, res) {
+    try {
+      const User = require('../models/User');
+      const { userId } = req.params;
+      const { isActive } = req.body;
+
+      if (isActive === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: ERROR_CODES.VALIDATION_ERROR,
+            message: 'isActive status is required',
+          },
+        });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: {
+            code: ERROR_CODES.USER_NOT_FOUND,
+            message: 'User not found',
+          },
+        });
+      }
+
+      user.isActive = isActive;
+      await user.save();
+
+      // Log admin activity
+      await req.user.logActivity('UPDATE_USER_STATUS', 'user', userId, {
+        userEmail: user.email,
+        isActive,
+      }, req);
+
+      logger.info('User status updated by admin:', {
+        userId,
+        email: user.email,
+        isActive,
+        adminId: req.user.id,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `User ${isActive ? 'activated' : 'deactivated'} successfully`,
+        data: {
+          user,
+        },
+      });
+    } catch (error) {
+      logger.error('Update user status failed:', {
+        error: error.message,
+        userId: req.params.userId,
+        adminId: req.user?.id,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: {
+          code: ERROR_CODES.SERVER_ERROR,
+          message: 'Failed to update user status',
+        },
+      });
+    }
+  }
 }
 
 module.exports = AdminController;

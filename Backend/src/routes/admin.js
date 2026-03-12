@@ -157,4 +157,23 @@ router.delete('/admins/:adminId',
   AdminController.deactivateAdmin
 );
 
+// User management routes
+/**
+ * @route GET /api/admin/users
+ * @desc Get all registered users
+ * @access Private (Admin)
+ */
+router.get('/users', authorizeAdmin(['manage_users']), AdminController.getAllUsers);
+
+/**
+ * @route PUT /api/admin/users/:userId/status
+ * @desc Update user status
+ * @access Private (Admin)
+ */
+router.put('/users/:userId/status',
+  authorizeAdmin(['manage_users']),
+  validateObjectId('userId'),
+  AdminController.updateUserStatus
+);
+
 module.exports = router;

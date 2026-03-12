@@ -159,9 +159,15 @@ const validateBookingRequest = (type) => {
       .withMessage('Please provide a valid time in HH:MM format'),
     
     body('venue')
-      .trim()
-      .isLength({ min: 5, max: 200 })
-      .withMessage('Venue must be between 5 and 200 characters'),
+      .custom((value) => {
+        if (typeof value === 'object') return true;
+        try {
+          const parsed = JSON.parse(value);
+          return typeof parsed === 'object';
+        } catch (e) {
+          throw new Error('Venue must be an object or JSON string');
+        }
+      }),
     
     body('guestCount')
       .isInt({ min: 1, max: 10000 })

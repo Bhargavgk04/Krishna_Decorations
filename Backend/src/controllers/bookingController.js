@@ -27,26 +27,28 @@ exports.createBooking = async (req, res) => {
       guestCount,
       budget,
       requirements,
+      eventTime,
       preferredTime,
       additionalServices
     } = req.body;
 
     // Generate unique booking ID
-    const bookingId = generateBookingId();
+    const bookingReference = generateBookingId();
 
     // Create booking
     const booking = new Booking({
-      bookingId,
+      bookingReference,
+      user: req.user.id,
       customerName,
       email,
       phone,
       eventType,
       eventDate: new Date(eventDate),
+      eventTime: eventTime || preferredTime,
       venue,
       guestCount,
       budget,
       requirements,
-      preferredTime,
       additionalServices: additionalServices || [],
       status: 'pending',
       createdAt: new Date()
@@ -71,13 +73,13 @@ exports.createBooking = async (req, res) => {
       logger.error('Failed to send WhatsApp notification:', whatsappError);
     }
 
-    logger.info(`New booking created: ${bookingId}`);
+    logger.info(`New booking created: ${bookingReference}`);
 
     res.status(201).json({
       success: true,
       message: 'Booking created successfully',
       data: {
-        bookingId: booking.bookingId,
+        bookingId: booking.bookingReference,
         status: booking.status,
         eventDate: formatDate(booking.eventDate)
       }

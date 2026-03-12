@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
-const { Admin } = require('../models/Admin');
+const Admin = require('../models/Admin');
 const { JWT, ERROR_CODES } = require('../config/constants');
 const logger = require('../utils/logger');
 
@@ -83,7 +83,7 @@ class AuthService {
     const refreshToken = this.generateRefreshToken({ userId: user._id });
 
     return {
-      accessToken,
+      token: accessToken,
       refreshToken,
       tokenType: 'Bearer',
       expiresIn: this.getTokenExpirationTime(JWT.EXPIRE),
@@ -132,7 +132,14 @@ class AuthService {
   static async authenticateUser(email, password, ipAddress = null, userAgent = null) {
     try {
       // Find user with password
-      const user = await User.findByEmailWithPassword(email);
+      let user = await User.findOne({ email }).select('+password');
+      let role = 'user';
+
+      if (!user) {
+        user = await Admin.findOne({ email }).select('+password');
+        role = 'admin';
+      }
+
       if (!user) {
         throw this.createAuthError('Invalid email or password', 'INVALID_CREDENTIALS');
       }
@@ -155,10 +162,7 @@ class AuthService {
         
         // Log failed attempt for admin users
         if (user.role === 'admin') {
-          const admin = await Admin.findById(user._id);
-          if (admin) {
-            await admin.recordLogin(false, ipAddress, userAgent, 'Invalid password');
-          }
+          await user.logActivity('LOGIN_FAILURE', 'AUTH', null, { ipAddress, userAgent, reason: 'Invalid password' });
         }
         
         throw this.createAuthError('Invalid email or password', 'INVALID_CREDENTIALS');
@@ -169,11 +173,7 @@ class AuthService {
 
       // Record successful login for admin users
       if (user.role === 'admin') {
-        const admin = await Admin.findById(user._id);
-        if (admin) {
-          await admin.recordLogin(true, ipAddress, userAgent);
-          await admin.createSession(); // Create admin session
-        }
+        await user.logActivity('LOGIN_SUCCESS', 'AUTH', null, { ipAddress, userAgent });
       }
 
       // Generate tokens
@@ -392,11 +392,7 @@ class AuthService {
       // For admin users, invalidate session
       const user = await User.findById(userId);
       if (user && user.role === 'admin') {
-        const admin = await Admin.findById(userId);
-        if (admin) {
-          await admin.invalidateSession();
-          await admin.logActivity('LOGOUT', null, null, { token: token.substring(0, 10) + '...' });
-        }
+        await user.logActivity('LOGOUT', 'AUTH', null, { token: token.substring(0, 10) + '...' });
       }
 
       // In a production environment, you might want to maintain a blacklist of invalidated tokens

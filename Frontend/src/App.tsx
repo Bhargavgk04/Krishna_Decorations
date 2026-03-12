@@ -2,7 +2,9 @@ import React, { Suspense, useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import LoginPage from "./pages/Login";
-import Admin from "./pages/Admin";
+import Admin from "./pages/AdminPage";
+// Force reload: Unified login transition v2
+console.log("App.tsx: Admin component imported from ./pages/AdminPage");
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import Header from "./components/Layout/Header";
@@ -276,11 +278,12 @@ const AppContent: React.FC<{ appReady: boolean }> = ({ appReady }) => {
                     </PageTransition>
                   }
                 />
+
                 <Route
-                  path="/admin/*"
+                  path="/admin-dashboard"
                   element={
                     <PageTransition>
-                      <Admin />
+                      <Admin path="dashboard" />
                     </PageTransition>
                   }
                 />
