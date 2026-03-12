@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-import { Phone, Mail, MapPin, User, LogOut, UserCircle } from 'lucide-react';
+import { Phone, Mail, MapPin, User, LogOut, UserCircle, LayoutDashboard, Clock } from 'lucide-react';
 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -140,6 +140,16 @@ const Header: React.FC = () => {
 
             {isAuthenticated ? (
               <div className="hidden lg:flex items-center gap-2">
+                {(user?.role === 'admin' || user?.role === 'super_admin' || user?.role === 'manager') && (
+                  <NavbarButton
+                    variant="ghost"
+                    onClick={() => handleNavigation('/admin-dashboard')}
+                    className="!px-3 !py-2 text-amber-500 hover:text-amber-400"
+                  >
+                    <LayoutDashboard className="w-5 h-5 mr-2" />
+                    Dashboard
+                  </NavbarButton>
+                )}
                 <NavbarButton
                   variant="ghost"
                   onClick={() => handleNavigation('/profile')}
@@ -219,6 +229,12 @@ const Header: React.FC = () => {
                           <p className="text-xs text-slate-400">{user?.email}</p>
                         </div>
                       </div>
+                      {(user?.role === 'admin' || user?.role === 'super_admin' || user?.role === 'manager') && (
+                        <NavbarButton variant="ghost" onClick={() => handleNavigation('/admin-dashboard')} className="w-full justify-start text-amber-500">
+                          <Clock className="w-4 h-4 mr-2" />
+                          Admin Dashboard
+                        </NavbarButton>
+                      )}
                       <NavbarButton variant="secondary" onClick={() => handleNavigation('/profile')} className="w-full">
                         <UserCircle className="w-4 h-4 mr-2" />
                         My Profile

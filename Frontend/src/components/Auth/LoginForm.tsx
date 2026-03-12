@@ -31,7 +31,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToRegister }) 
       const user = await login(formData.email, formData.password);
       onSuccess?.();
 
-      if (user.role === 'admin') {
+      if (user.role === 'admin' || user.role === 'super_admin' || user.role === 'manager') {
         navigate('/admin-dashboard');
       } else {
         navigate('/');

@@ -35,20 +35,25 @@ const UserManagement: React.FC = () => {
     }, [filters]);
 
     const loadUsers = async () => {
-        setIsLoading(true);
-        try {
-            const response = await adminService.getAllUsers(filters);
-            if (response && response.success && response.data) {
-                // @ts-ignore - fixing type mismatch with PaginatedResponse
-                setUsers(response.data.users || []);
-                // @ts-ignore - fixing type mismatch with PaginatedResponse
-                setPagination(response.data.pagination);
-            }
-        } catch (error) {
-            console.error('Failed to load users:', error);
-        } finally {
-            setIsLoading(false);
-        }
+        // For frontend demo, use mock users
+        const mockUsers = [
+            { _id: '1', name: 'Aarav Sharma', email: 'aarav.sharma@example.com', phone: '9876543210', role: 'user', isActive: true, createdAt: '2023-01-10', updatedAt: '2023-01-10' },
+            { _id: '2', name: 'Priya Mehta', email: 'priya.mehta@example.com', phone: '8765432109', role: 'user', isActive: false, createdAt: '2023-02-15', updatedAt: '2023-02-15' },
+            { _id: '3', name: 'Rohan Iyer', email: 'rohan.iyer@example.com', phone: '7654321098', role: 'user', isActive: true, createdAt: '2023-03-20', updatedAt: '2023-03-20' },
+            { _id: '4', name: 'Sneha Kulkarni', email: 'sneha.kulkarni@example.com', phone: '6543210987', role: 'user', isActive: true, createdAt: '2023-04-05', updatedAt: '2023-04-05' },
+            { _id: '5', name: 'Vikram Reddy', email: 'vikram.reddy@example.com', phone: '5432109876', role: 'user', isActive: false, createdAt: '2023-05-12', updatedAt: '2023-05-12' },
+            { _id: '6', name: 'Ananya Gupta', email: 'ananya.gupta@example.com', phone: '4321098765', role: 'user', isActive: true, createdAt: '2023-06-18', updatedAt: '2023-06-18' },
+            { _id: '7', name: 'Karan Patel', email: 'karan.patel@example.com', phone: '3210987654', role: 'user', isActive: true, createdAt: '2023-07-22', updatedAt: '2023-07-22' },
+        ];
+        setUsers(mockUsers);
+        setPagination({
+            totalItems: mockUsers.length,
+            totalPages: 1,
+            currentPage: 1,
+            hasNextPage: false,
+            hasPrevPage: false,
+        });
+        setIsLoading(false);
     };
 
     const handleStatusToggle = async (user: User) => {

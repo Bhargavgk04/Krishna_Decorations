@@ -1,5 +1,8 @@
 import { apiService, ApiResponse, PaginatedResponse } from './api';
 
+// Development mode flag - set to true to use mock data
+const USE_MOCK_DATA = true;
+
 // Types
 export interface Notification {
   _id: string;
@@ -194,12 +197,22 @@ export const notificationService = {
 
   // Send booking reminder
   sendBookingReminder: async (bookingId: string, daysAhead?: number): Promise<ApiResponse> => {
+    if (USE_MOCK_DATA) {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 200));
+      return { success: true };
+    }
     const data = daysAhead ? { daysAhead } : {};
     return await apiService.post(`/notifications/booking-reminder/${bookingId}`, data);
   },
 
   // Send booking status update
   sendBookingStatusUpdate: async (bookingId: string): Promise<ApiResponse> => {
+    if (USE_MOCK_DATA) {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 200));
+      return { success: true };
+    }
     return await apiService.post(`/notifications/booking-status-update/${bookingId}`);
   },
 

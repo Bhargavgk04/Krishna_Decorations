@@ -61,10 +61,11 @@ const BookingManagement: React.FC = () => {
   const statusOptions: StatusOption[] = [
     { value: 'pending', label: 'Pending', color: 'yellow' },
     { value: 'approved', label: 'Approved', color: 'blue' },
-    { value: 'in-progress', label: 'In Progress', color: 'indigo' },
+    { value: 'in_progress', label: 'In Progress', color: 'indigo' },
     { value: 'modifications-requested', label: 'Modifications Requested', color: 'orange' },
     { value: 'completed', label: 'Completed', color: 'green' },
-    { value: 'cancelled', label: 'Rejected', color: 'red' }
+    { value: 'cancelled', label: 'Cancelled', color: 'red' },
+    { value: 'rejected', label: 'Rejected', color: 'red' }
   ];
 
   const eventTypes = [

@@ -54,8 +54,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ admin, onLogout }) => {
         setDashboardData(dashboardResponse.data);
       }
 
-      if (bookingsResponse.success) {
-        setRecentBookings(bookingsResponse.data ?? []);
+      if (bookingsResponse.success && bookingsResponse.data) {
+        setRecentBookings(bookingsResponse.data.bookings || []);
       }
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
@@ -70,10 +70,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ admin, onLogout }) => {
         return "text-yellow-600 bg-yellow-100";
       case "approved":
         return "text-blue-600 bg-blue-100";
+      case "in_progress":
+        return "text-purple-600 bg-purple-100";
       case "completed":
         return "text-green-600 bg-green-100";
       case "cancelled":
+      case "rejected":
         return "text-red-600 bg-red-100";
+      case "modifications-requested":
+        return "text-orange-600 bg-orange-100";
       default:
         return "text-gray-600 bg-gray-100";
     }
@@ -317,7 +322,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ admin, onLogout }) => {
                       </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                      {recentBookings.map((booking) => (
+                      {Array.isArray(recentBookings) && recentBookings.map((booking) => (
                         <tr key={booking._id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{booking.bookingReference}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{booking.user?.name}</td>
@@ -329,6 +334,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ admin, onLogout }) => {
                           </td>
                         </tr>
                       ))}
+                      {(!Array.isArray(recentBookings) || recentBookings.length === 0) && (
+                        <tr>
+                          <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                            No recent bookings found
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>

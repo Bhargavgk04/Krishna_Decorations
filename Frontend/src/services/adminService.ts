@@ -1,5 +1,18 @@
 import { apiService, ApiResponse, PaginatedResponse } from './api';
 
+// Development mode flag - set to true to use mock data
+const USE_MOCK_DATA = true;
+
+// Mock dashboard data
+const mockDashboardData = {
+  overview: {
+    totalBookings: 7,
+    pendingBookings: 1,
+    totalRevenue: 26000,
+    activeUsers: 7
+  }
+};
+
 // Types
 export interface Admin {
   _id: string;
@@ -141,13 +154,57 @@ export interface ActivityLog {
 export const adminService = {
   // Admin authentication
   login: async (credentials: AdminLoginCredentials): Promise<ApiResponse<AdminAuthResponse>> => {
+    if (USE_MOCK_DATA) {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Mock admin login - accept any credentials for demo
+      const mockAdmin: Admin = {
+        _id: 'mock-admin-id',
+        name: 'Admin User',
+        email: credentials.email,
+        role: 'admin',
+        permissions: ['all'],
+        isActive: true,
+        joinDate: '2024-01-01T00:00:00.000Z',
+        preferences: {
+          theme: 'light',
+          language: 'en',
+          dateFormat: 'DD/MM/YYYY',
+          timeFormat: '24h'
+        },
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z'
+      };
+
+      const mockTokens = {
+        accessToken: 'mock-access-token',
+        refreshToken: 'mock-refresh-token'
+      };
+
+      const response: ApiResponse<AdminAuthResponse> = {
+        success: true,
+        data: {
+          admin: mockAdmin,
+          tokens: mockTokens
+        }
+      };
+
+      // Store auth data using unified keys
+      localStorage.setItem('authToken', mockTokens.accessToken);
+      localStorage.setItem('refreshToken', mockTokens.refreshToken);
+      localStorage.setItem('user', JSON.stringify(mockAdmin));
+
+      return response;
+    }
+
     const response = await apiService.post<AdminAuthResponse>('/admin/login', credentials);
 
     if (response.success && response.data) {
-      // Store auth data
-      localStorage.setItem('adminToken', response.data.tokens.accessToken);
-      localStorage.setItem('adminRefreshToken', response.data.tokens.refreshToken);
-      localStorage.setItem('admin', JSON.stringify(response.data.admin));
+      // Store auth data using unified keys
+      localStorage.setItem('authToken', response.data.tokens.accessToken);
+      localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+      localStorage.setItem('user', JSON.stringify(response.data.admin));
     }
 
     return response;
@@ -160,7 +217,10 @@ export const adminService = {
     } catch (error) {
       console.warn('Admin logout API call failed:', error);
     } finally {
-      // Clear local storage
+      // Clear local storage using both unified and old keys for safety during transition
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
       localStorage.removeItem('adminToken');
       localStorage.removeItem('adminRefreshToken');
       localStorage.removeItem('admin');
@@ -169,6 +229,41 @@ export const adminService = {
 
   // Get dashboard data
   getDashboard: async (dateRange?: { startDate?: string; endDate?: string }): Promise<ApiResponse<DashboardData>> => {
+    if (USE_MOCK_DATA) {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      return {
+        success: true,
+        data: {
+          overview: mockDashboardData.overview,
+          recentBookings: [],
+          upcomingEvents: [],
+          statistics: {
+            bookingsByStatus: [
+              { status: 'pending', count: 1 },
+              { status: 'approved', count: 2 },
+              { status: 'in_progress', count: 1 },
+              { status: 'completed', count: 1 },
+              { status: 'cancelled', count: 1 },
+              { status: 'modifications-requested', count: 1 }
+            ],
+            bookingsByEventType: [
+              { eventType: 'wedding', count: 2 },
+              { eventType: 'birthday', count: 2 },
+              { eventType: 'anniversary', count: 1 },
+              { eventType: 'corporate', count: 1 },
+              { eventType: 'other', count: 1 }
+            ],
+            monthlyBookings: [
+              { month: 'Feb 2024', count: 3, revenue: 250000 },
+              { month: 'Mar 2024', count: 4, revenue: 286000 }
+            ]
+          }
+        }
+      };
+    }
+
     const params = new URLSearchParams();
     if (dateRange?.startDate) params.append('startDate', dateRange.startDate);
     if (dateRange?.endDate) params.append('endDate', dateRange.endDate);
@@ -278,20 +373,28 @@ export const adminService = {
 
   // Check if admin is authenticated
   isAuthenticated: (): boolean => {
-    const token = localStorage.getItem('adminToken');
-    const admin = localStorage.getItem('admin');
-    return !!(token && admin);
+    const token = localStorage.getItem('authToken');
+    const userStr = localStorage.getItem('user');
+    if (!token || !userStr) return false;
+    try {
+      const user = JSON.parse(userStr);
+      return user.role === 'admin' || user.role === 'super_admin' || user.role === 'manager';
+    } catch {
+      return false;
+    }
   },
 
   // Get current admin from localStorage
   getCurrentAdmin: (): Admin | null => {
-    const adminStr = localStorage.getItem('admin');
-    if (adminStr) {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
       try {
-        return JSON.parse(adminStr);
+        const user = JSON.parse(userStr);
+        if (user.role === 'admin' || user.role === 'super_admin' || user.role === 'manager') {
+          return user as Admin;
+        }
       } catch (error) {
         console.error('Error parsing admin data:', error);
-        return null;
       }
     }
     return null;
@@ -299,7 +402,7 @@ export const adminService = {
 
   // Get admin token
   getToken: (): string | null => {
-    return localStorage.getItem('adminToken');
+    return localStorage.getItem('authToken');
   },
 };
 

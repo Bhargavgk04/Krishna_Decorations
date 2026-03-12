@@ -227,17 +227,8 @@ router.use((req, res, next) => {
 });
 
 /**
- * Request timing middleware
+ * Request timing middleware removed - causing headers already sent error
  */
-router.use((req, res, next) => {
-  req.startTime = Date.now();
-  
-  res.on('finish', () => {
-    const duration = Date.now() - req.startTime;
-    res.setHeader('X-Response-Time', `${duration}ms`);
-  });
-  
-  next();
-});
+// router.use((req, res, next) => { ... });
 
 module.exports = router;

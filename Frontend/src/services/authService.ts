@@ -7,7 +7,7 @@ export interface User {
   email: string;
   phone?: string;
   isEmailVerified: boolean;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'super_admin' | 'manager';
   createdAt: string;
   updatedAt: string;
 }
@@ -49,30 +49,30 @@ export const authService = {
   register: async (userData: RegisterData): Promise<ApiResponse<AuthResponse>> => {
     // Remove confirmPassword field before sending to backend
     const { confirmPassword, ...dataToSend } = userData;
-    
+
     const response = await apiService.post<AuthResponse>('/auth/register', dataToSend);
-    
+
     if (response.success && response.data) {
       // Store auth data
       localStorage.setItem('authToken', response.data.token);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('user', JSON.stringify(response.data.user));
     }
-    
+
     return response;
   },
 
   // Login user
   login: async (credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> => {
     const response = await apiService.post<AuthResponse>('/auth/login', credentials);
-    
+
     if (response.success && response.data) {
       // Store auth data
       localStorage.setItem('authToken', response.data.token);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('user', JSON.stringify(response.data.user));
     }
-    
+
     return response;
   },
 
@@ -99,12 +99,12 @@ export const authService = {
   // Update user profile
   updateProfile: async (profileData: ProfileUpdateData): Promise<ApiResponse<User>> => {
     const response = await apiService.put<User>('/auth/profile', profileData);
-    
+
     if (response.success && response.data) {
       // Update stored user data
       localStorage.setItem('user', JSON.stringify(response.data));
     }
-    
+
     return response;
   },
 

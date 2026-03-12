@@ -24,26 +24,32 @@ export const ADDITIONAL_SERVICES = [
 
 export const BOOKING_STATUS = {
   PENDING: 'pending',
-  CONFIRMED: 'confirmed',
+  APPROVED: 'approved',
   IN_PROGRESS: 'in_progress',
+  MODIFICATIONS_REQUESTED: 'modifications-requested',
   COMPLETED: 'completed',
-  CANCELLED: 'cancelled'
+  CANCELLED: 'cancelled',
+  REJECTED: 'rejected'
 };
 
 export const BOOKING_STATUS_LABELS = {
-  [BOOKING_STATUS.PENDING]: 'Pending Review',
-  [BOOKING_STATUS.CONFIRMED]: 'Confirmed',
+  [BOOKING_STATUS.PENDING]: 'Pending',
+  [BOOKING_STATUS.APPROVED]: 'Approved',
   [BOOKING_STATUS.IN_PROGRESS]: 'In Progress',
+  [BOOKING_STATUS.MODIFICATIONS_REQUESTED]: 'Modifications Requested',
   [BOOKING_STATUS.COMPLETED]: 'Completed',
-  [BOOKING_STATUS.CANCELLED]: 'Cancelled'
+  [BOOKING_STATUS.CANCELLED]: 'Cancelled',
+  [BOOKING_STATUS.REJECTED]: 'Rejected'
 };
 
 export const BOOKING_STATUS_COLORS = {
   [BOOKING_STATUS.PENDING]: '#ffc107',
-  [BOOKING_STATUS.CONFIRMED]: '#28a745',
+  [BOOKING_STATUS.APPROVED]: '#28a745',
   [BOOKING_STATUS.IN_PROGRESS]: '#007bff',
+  [BOOKING_STATUS.MODIFICATIONS_REQUESTED]: '#fd7e14',
   [BOOKING_STATUS.COMPLETED]: '#6c757d',
-  [BOOKING_STATUS.CANCELLED]: '#dc3545'
+  [BOOKING_STATUS.CANCELLED]: '#dc3545',
+  [BOOKING_STATUS.REJECTED]: '#dc3545'
 };
 
 export const API_ENDPOINTS = {

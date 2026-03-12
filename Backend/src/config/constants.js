@@ -24,10 +24,11 @@ module.exports = {
   BOOKING_STATUS: [
     'pending',
     'approved', 
-    'in-progress',
+    'in_progress',
     'modifications-requested',
     'completed',
-    'cancelled'
+    'cancelled',
+    'rejected'
   ],
 
   // Event types

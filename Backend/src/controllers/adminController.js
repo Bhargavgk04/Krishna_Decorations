@@ -125,9 +125,12 @@ class AdminController {
       });
 
       // Log admin activity
-      await req.user.logActivity('VIEW_DASHBOARD', 'dashboard', null, {
-        dateRange: { startDate, endDate },
-      }, req);
+      const currentAdmin = await Admin.findById(req.user.id);
+      if (currentAdmin) {
+        await currentAdmin.logActivity('VIEW_DASHBOARD', 'dashboard', null, {
+          dateRange: { startDate, endDate },
+        }, req);
+      }
 
       res.status(200).json({
         success: true,
@@ -779,9 +782,12 @@ class AdminController {
       };
 
       // Log admin activity
-      await req.user.logActivity('VIEW_ALL_USERS', 'user', null, {
-        filters: { search, isActive },
-      }, req);
+      const currentAdmin = await Admin.findById(req.user.id);
+      if (currentAdmin) {
+        await currentAdmin.logActivity('VIEW_ALL_USERS', 'user', null, {
+          filters: { search, isActive },
+        }, req);
+      }
 
       res.status(200).json({
         success: true,
