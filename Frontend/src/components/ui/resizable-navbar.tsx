@@ -19,9 +19,8 @@ interface NavBodyProps {
 export const NavBody: React.FC<NavBodyProps> = ({ children, className }) => {
   return (
     <div
-      className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 flex h-16 lg:h-20 items-center justify-between gap-4 ${
-        className ?? ''
-      }`}
+      className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 flex h-16 lg:h-20 items-center justify-between gap-4 ${className ?? ''
+        }`}
     >
       {children}
     </div>
@@ -47,11 +46,10 @@ export const NavItems: React.FC<NavItemsProps> = ({ items, className }) => {
         <motion.button
           key={item.name}
           onClick={item.onClick}
-          className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[rgba(255,136,0,0.35)] ${
-            item.active
+          className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[rgba(255,136,0,0.35)] ${item.active
               ? 'text-white bg-brand-gradient shadow-brand'
               : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-          }`}
+            }`}
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.96 }}
         >
@@ -93,9 +91,8 @@ export const NavbarLogo: React.FC<NavbarLogoProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className={`group inline-flex items-center gap-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[rgba(255,136,0,0.35)] ${
-        className ?? ''
-      }`}
+      className={`group inline-flex items-center gap-3 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[rgba(255,136,0,0.35)] ${className ?? ''
+        }`}
     >
       {children}
     </button>
@@ -171,9 +168,8 @@ export const MobileNavToggle: React.FC<MobileNavToggleProps> = ({
     <motion.button
       type={type}
       whileTap={{ scale: 0.94 }}
-      className={`inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-700/60 bg-slate-900/70 text-slate-200 shadow-sm transition-colors duration-300 hover:border-brand hover:text-brand ${
-        className ?? ''
-      }`}
+      className={`inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-700/60 bg-slate-900/70 text-slate-200 shadow-sm transition-colors duration-300 hover:border-brand hover:text-brand ${className ?? ''
+        }`}
       {...props}
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -227,9 +223,8 @@ export const MobileNavMenu: React.FC<MobileNavMenuProps> = ({
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.25 }}
-          className={`mt-4 rounded-2xl border border-slate-700/70 bg-[rgba(6,14,24,0.95)] p-4 shadow-xl backdrop-blur-xl ${
-            className ?? ''
-          }`}
+          className={`mt-4 rounded-2xl border border-slate-700/70 bg-[rgba(6,14,24,0.95)] p-4 shadow-xl backdrop-blur-xl ${className ?? ''
+            }`}
         >
           <div className="space-y-4">{children}</div>
           {onClose && (
